@@ -1,69 +1,82 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { useWorkout } from "@/context/WorkoutContext";
 
 export default function Navbar() {
+  const { plan, saved } = useWorkout();
+
+  const [active, setActive] = useState<"workouts" | "my-plan">("my-plan");
+
+  const activeStyle =
+    "rounded-full  bg-[#c8ff00]/10 px-4 py-2 text-[#c8ff00]";
+
+  const normalStyle =
+    "rounded-full  px-4 py-2 text-gray-400 hover:text-white";
+
   return (
-    <nav className="border-b border-[#242832] bg-[#0d0f12]">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
-        
+    <header className="border-b border-[#252a32] bg-[#0d0f12]">
+      <nav className="relative mx-auto flex max-w-7xl items-center px-5 py-4">
+
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/assets/logo.png"
-            alt="FitLog logo"
-            width={28}
-            height={28}
+            alt="FitLog"
+            width={38}
+            height={38}
           />
 
-          <span className="text-xl font-bold tracking-wide text-white">
-            FITLOG
+          <span className="text-xl font-black uppercase text-white">
+            FitLog
           </span>
         </Link>
 
-        {/* Navigation */}
-        <div className="flex items-center gap-8">
+        {/* Center Navigation */}
+        <div className="absolute left-1/2 flex -translate-x-1/2 items-center gap-3 text-sm font-semibold">
+
           <Link
             href="/"
-            className="text-sm text-gray-400 transition hover:text-white"
+            onClick={() => setActive("workouts")}
+            className={
+              active === "workouts" ? activeStyle : normalStyle
+            }
           >
             Workouts
           </Link>
 
           <Link
             href="/my-plan"
-            className="rounded-full bg-[#17220b] px-5 py-2 text-sm font-medium text-[#c8ff00]"
+            onClick={() => setActive("my-plan")}
+            className={
+              active === "my-plan" ? activeStyle : normalStyle
+            }
           >
             My Plan
           </Link>
+
         </div>
 
         {/* Counters */}
-        <div className="flex items-center gap-6 text-sm">
-          
+        <div className="ml-auto hidden items-center gap-4 text-sm sm:flex">
           <Link
             href="/my-plan"
-            className="flex items-center gap-2 text-gray-300"
+            className="text-gray-400 hover:text-white"
           >
-            <span>Plan</span>
-
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#c8ff00] px-1.5 text-xs font-bold text-black">
-              0
-            </span>
+            Plan ({plan.length})
           </Link>
 
           <Link
             href="/my-plan"
-            className="flex items-center gap-2 text-gray-400"
+            className="text-gray-400 hover:text-white"
           >
-            <span>Saved</span>
-
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full border border-[#303641] px-1.5 text-xs text-gray-300">
-              0
-            </span>
+            Saved ({saved.length})
           </Link>
-
         </div>
-      </div>
-    </nav>
+
+      </nav>
+    </header>
   );
 }
