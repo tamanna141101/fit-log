@@ -17,7 +17,7 @@ export default function Navbar() {
     "rounded-full  px-4 py-2 text-gray-400 hover:text-white";
 
   return (
-    <header className="border-b border-[#252a32] bg-[#0d0f12]">
+    <header className="sticky top-0 z-50 border-b border-[#252a32] bg-[#0d0f12]">
       <nav className="relative mx-auto flex max-w-7xl items-center px-5 py-4">
 
         {/* Logo */}
@@ -63,16 +63,22 @@ export default function Navbar() {
         <div className="ml-auto hidden items-center gap-4 text-sm sm:flex">
           <Link
             href="/my-plan"
-            className="text-gray-400 hover:text-white"
+            className="flex items-center gap-1.5 text-gray-400 hover:text-white"
           >
-            Plan ({plan.length})
+            Plan
+            <span className="rounded-full bg-[#c8ff00] px-2 py-0.5 text-xs font-bold text-black">
+              {plan.length}
+            </span>
           </Link>
 
           <Link
             href="/my-plan"
-            className="text-gray-400 hover:text-white"
+            className="flex items-center gap-1.5 text-gray-400 hover:text-white"
           >
-            Saved ({saved.length})
+            Saved
+            <span className="rounded-full bg-[#c8ff00] px-2 py-0.5 text-xs font-bold text-black">
+              {saved.length}
+            </span>
           </Link>
         </div>
 
