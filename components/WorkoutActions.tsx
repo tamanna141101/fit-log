@@ -11,39 +11,79 @@ interface WorkoutActionsProps {
 export default function WorkoutActions({
   workout,
 }: WorkoutActionsProps) {
-  const { addToPlan, saveForLater } = useWorkout();
+  const {
+    plan,
+    addToPlan,
+    saveForLater,
+  } = useWorkout();
 
-  const [planMessage, setPlanMessage] = useState("");
-  const [savedMessage, setSavedMessage] = useState("");
+  const [toast, setToast] = useState("");
 
-  function handleAddToPlan() {
-    addToPlan(workout);
-    setPlanMessage("Added to Today's Plan ✓");
+  const alreadyInPlan = plan.some(
+    (item) => item.id === workout.id
+  );
+
+  const planIsFull = plan.length >= 5;
+
+  function showToast(message: string) {
+    setToast(message);
 
     setTimeout(() => {
-      setPlanMessage("");
+      setToast("");
     }, 2000);
+  }
+
+  function handleAddToPlan() {
+    if (planIsFull) {
+      showToast(
+        "Today's Plan can have a maximum of 5 workouts."
+      );
+      return;
+    }
+
+    if (alreadyInPlan) {
+      showToast(
+        "Workout is already in Today's Plan."
+      );
+      return;
+    }
+
+    const added = addToPlan(workout);
+
+    if (added) {
+      showToast("Added to Today's Plan ✓");
+    }
   }
 
   function handleSave() {
-    saveForLater(workout);
-    setSavedMessage("Saved for Later ✓");
+    const saved = saveForLater(workout);
 
-    setTimeout(() => {
-      setSavedMessage("");
-    }, 2000);
+    if (saved) {
+      showToast("Saved for Later ✓");
+    } else {
+      showToast("Already saved ✓");
+    }
   }
 
   return (
-    <div className="mt-8">
-      <div className="flex flex-wrap gap-3">
+    <>
+      <div className="mt-8 flex flex-wrap gap-3">
+        {/* Add to Plan */}
         <button
           onClick={handleAddToPlan}
-          className="rounded-md bg-[#c8ff00] px-5 py-3 text-sm font-bold uppercase text-black transition hover:bg-[#d8ff4d]"
+          disabled={planIsFull || alreadyInPlan}
+          className={`rounded-md px-5 py-3 text-sm font-bold uppercase transition ${
+            planIsFull || alreadyInPlan
+              ? "cursor-not-allowed bg-[#30343b] text-gray-500"
+              : "bg-[#c8ff00] text-black hover:bg-[#d8ff4d]"
+          }`}
         >
-          Add to Today&apos;s Plan
+          {alreadyInPlan
+            ? "Already Added"
+            : "Add to Today's Plan"}
         </button>
 
+        {/* Save for Later */}
         <button
           onClick={handleSave}
           className="rounded-md border border-[#c8ff00] px-5 py-3 text-sm font-bold uppercase text-[#c8ff00] transition hover:bg-[#c8ff00] hover:text-black"
@@ -52,17 +92,12 @@ export default function WorkoutActions({
         </button>
       </div>
 
-      {planMessage && (
-        <p className="mt-3 text-sm font-semibold text-[#c8ff00]">
-          {planMessage}
-        </p>
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-[9999] rounded-full bg-[#c8ff00] px-6 py-3 text-xs font-bold text-black shadow-xl">
+          {toast}
+        </div>
       )}
-
-      {savedMessage && (
-        <p className="mt-3 text-sm font-semibold text-[#c8ff00]">
-          {savedMessage}
-        </p>
-      )}
-    </div>
+    </>
   );
 }

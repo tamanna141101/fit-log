@@ -19,6 +19,7 @@ export default function MyPlan() {
 
   const [activeTab, setActiveTab] = useState<Tab>("today");
   const [sortBy, setSortBy] = useState<SortOption>("duration");
+  const [search, setSearch] = useState("");
   const [toast, setToast] = useState("");
 
   const totalMinutes = plan.reduce(
@@ -40,18 +41,27 @@ export default function MyPlan() {
   }
 
   function handleMarkAsDone(id: number, name: string) {
-    markAsDone(id);
-    showToast(`${name} marked as done ✓`);
+    const done = markAsDone(id);
+
+    if (done) {
+      showToast(`${name} marked as done ✓`);
+    }
   }
 
   function handleRemovePlan(id: number, name: string) {
-    removeFromPlan(id);
-    showToast(`${name} removed ✓`);
+    const removed = removeFromPlan(id);
+
+    if (removed) {
+      showToast(`${name} removed ✓`);
+    }
   }
 
   function handleRemoveSaved(id: number, name: string) {
-    removeFromSaved(id);
-    showToast(`${name} removed from saved ✓`);
+    const removed = removeFromSaved(id);
+
+    if (removed) {
+      showToast(`${name} removed from saved ✓`);
+    }
   }
 
   function sortWorkouts(workouts: typeof plan) {
@@ -68,10 +78,34 @@ export default function MyPlan() {
     });
   }
 
-  const currentWorkouts =
-    activeTab === "today"
-      ? sortWorkouts(plan)
-      : sortWorkouts(saved);
+  const currentList =
+    activeTab === "today" ? plan : saved;
+
+  const searchText = search.trim().toLowerCase();
+
+  const filteredWorkouts = currentList.filter((workout) => {
+    if (!searchText) {
+      return true;
+    }
+
+    const name = workout.name?.toLowerCase() ?? "";
+    const equipment =
+      workout.equipment?.toLowerCase() ?? "";
+
+    const tags = Array.isArray((workout as any).tags)
+      ? (workout as any).tags
+          .join(" ")
+          .toLowerCase()
+      : "";
+
+    return (
+      name.includes(searchText) ||
+      equipment.includes(searchText) ||
+      tags.includes(searchText)
+    );
+  });
+
+  const currentWorkouts = sortWorkouts(filteredWorkouts);
 
   return (
     <main className="min-h-screen bg-[#0d0f12]">
@@ -130,7 +164,10 @@ export default function MyPlan() {
           {/* Tabs */}
           <div className="flex w-fit rounded-xl border border-[#292e38] bg-[#15181e] p-1">
             <button
-              onClick={() => setActiveTab("today")}
+              onClick={() => {
+                setActiveTab("today");
+                setSearch("");
+              }}
               className={`rounded-lg px-5 py-2 text-xs font-semibold transition ${
                 activeTab === "today"
                   ? "bg-[#20252f] text-white"
@@ -141,7 +178,10 @@ export default function MyPlan() {
             </button>
 
             <button
-              onClick={() => setActiveTab("saved")}
+              onClick={() => {
+                setActiveTab("saved");
+                setSearch("");
+              }}
               className={`rounded-lg px-5 py-2 text-xs font-semibold transition ${
                 activeTab === "saved"
                   ? "bg-[#20252f] text-white"
@@ -151,6 +191,15 @@ export default function MyPlan() {
               Saved
             </button>
           </div>
+
+          {/* Search */}
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by workout name or tag..."
+            className="w-full rounded-lg border border-[#292e38] bg-[#15181e] px-4 py-2.5 text-xs text-white outline-none placeholder:text-gray-600 focus:border-[#c8ff00] sm:w-64"
+          />
 
           {/* Sort */}
           <div className="flex items-center gap-3">
@@ -178,19 +227,25 @@ export default function MyPlan() {
             /* Empty State */
             <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-[#292e38] bg-[#0d0f12] px-5 text-center">
               <h2 className="text-xl font-black uppercase text-white">
-                Nothing Here Yet
+                {search
+                  ? "No Workouts Found"
+                  : "Nothing Here Yet"}
               </h2>
 
               <p className="mt-2 text-sm text-gray-500">
-                Browse the library and add a lift to get today moving.
+                {search
+                  ? "Try another workout name or tag."
+                  : "Browse the library and add a lift to get today moving."}
               </p>
 
-              <Link
-                href="/"
-                className="mt-6 rounded-full bg-[#c8ff00] px-7 py-3 text-xs font-bold text-black transition hover:bg-[#d8ff4d]"
-              >
-                Go to workouts
-              </Link>
+              {!search && (
+                <Link
+                  href="/"
+                  className="mt-6 rounded-full bg-[#c8ff00] px-7 py-3 text-xs font-bold text-black transition hover:bg-[#d8ff4d]"
+                >
+                  Go to workouts
+                </Link>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
@@ -297,7 +352,7 @@ export default function MyPlan() {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#c8ff00] px-6 py-3 text-xs font-bold text-black shadow-xl">
+        <div className="fixed bottom-6 right-6 z-[9999] rounded-full bg-[#c8ff00] px-6 py-3 text-xs font-bold text-black shadow-xl">
           {toast}
         </div>
       )}
