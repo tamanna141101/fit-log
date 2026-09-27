@@ -15,6 +15,7 @@ interface WorkoutContextType {
   removeFromPlan: (id: number) => void;
   saveForLater: (workout: Workout) => void;
   removeFromSaved: (id: number) => void;
+  markAsDone: (id: number) => void;
 }
 
 const WorkoutContext = createContext<WorkoutContextType | undefined>(
@@ -39,6 +40,10 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     setPlan((current) => current.filter((item) => item.id !== id));
   }
 
+  function markAsDone(id: number) {
+    setPlan((current) => current.filter((item) => item.id !== id));
+  }
+
   function saveForLater(workout: Workout) {
     setSaved((current) => {
       if (current.some((item) => item.id === workout.id)) {
@@ -60,6 +65,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         saved,
         addToPlan,
         removeFromPlan,
+        markAsDone,
         saveForLater,
         removeFromSaved,
       }}
