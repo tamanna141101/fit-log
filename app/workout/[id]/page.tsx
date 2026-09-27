@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Workout } from "@/types/workout";
+import WorkoutActions from "@/components/WorkoutActions";
 
 async function getWorkout(id: string): Promise<Workout> {
   const response = await fetch(
@@ -122,17 +123,9 @@ export default async function WorkoutDetails({
             </ol>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            <button className="rounded-md bg-[#c8ff00] px-5 py-3 text-sm font-bold uppercase text-black">
-              Add to Today&apos;s Plan
-            </button>
-
-            <button className="rounded-md border border-[#c8ff00] px-5 py-3 text-sm font-bold uppercase text-[#c8ff00]">
-              Save for Later
-            </button>
+          <WorkoutActions workout={workout} />
           </div>
         </div>
-      </div>
     </main>
   );
 }
